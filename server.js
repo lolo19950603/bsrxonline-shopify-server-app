@@ -3,6 +3,9 @@ const app = express();
 const Shopify = require('shopify-api-node');
 require('dotenv').config();
 
+// Add body parser middleware to parse JSON
+app.use(express.json()); // For parsing application/json
+
 const PORT = process.env.PORT || 3000;
 
 // Initialize Shopify client
@@ -17,6 +20,8 @@ app.post('/webhook/order-create', async (req, res) => {
   try {
     const orderData = req.body;
 
+    console.log(orderData.note_attributes)
+
     // Validate the order against your conditions
     if (!areConditionsMet(orderData)) {
       console.log('Order does not meet conditions:', orderData);
@@ -26,7 +31,7 @@ app.post('/webhook/order-create', async (req, res) => {
 
       console.log('Order canceled:', orderData.id);
     } else {
-      console.log('Order validated successfully:', orderData);
+      console.log('Order validated successfully:', orderData.id);
     }
 
     res.status(200).send('Webhook received');
@@ -38,11 +43,12 @@ app.post('/webhook/order-create', async (req, res) => {
 
 // Helper function to validate order conditions
 function areConditionsMet(orderData) {
+  // orderData.custom_attributes?.some(attr => attr.key === 'required_key')
   // Define your conditions here
   // Need to check if drop down is selected when there are icn/hp supplies
   // If ICN is selected, delivery address has to be selected clinic address
   // Need to check if the patient ids are inputed where there are  PSS items
-  return orderData.custom_attributes?.some(attr => attr.key === 'required_key');
+  return true;
 }
 
 // Helper function to cancel an order using Shopify API
